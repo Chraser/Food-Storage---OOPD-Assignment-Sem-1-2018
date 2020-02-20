@@ -1,0 +1,9 @@
+/************************************************************
+ *Name: Kay Men Yap
+ *File name: OOPDAssignment.txt
+ *Purpose: Starting point of the assignment
+ *Date last modified: 30/5/2018
+ ************************************************************/
+Main 
+    Menu.run <- none
+END Main

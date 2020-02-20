@@ -1,0 +1,183 @@
+/************************************************************
+ *Name: Kay Men Yap
+ *File name: Grain.txt
+ *Purpose: Holds information on grain items 
+ *Date last modified: 30/5/2018
+ ************************************************************/
+CLASS: Grain inherits from Food
+    PUBLIC CLASS CONSTANTS: MINVOLUME(Real):= 0.2
+                            MAXVOLUME(Real):= 5.0
+    CLASS FIELDS: type(String), volume(Real)
+
+CONSTRUCTORS:
+Default:
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: whole type with a volume of 2.0 is valid
+    ALGORITHM:
+        super <- none
+        type:= "whole"
+        volume:= 2.0
+END Default
+
+Alternate:
+    IMPORT: inName (String), inStorageTemp (Real), inPackaging (String), 
+            inDay (Integer), inMonth(Integer), inYear(Integer),
+            inType (String), inVolume (Real)
+    EXPORT: none
+    ASSERTION: Creates the object if the imports are valid and FAILS otherwise
+    ALGORITHM:
+        super <- inName, inStorageTemp, inPackaging, inDay, inMonth, inYear
+        setType <- inType
+        setVolume <- inVolume
+END Alternate
+
+Copy:
+    IMPORT: inGrain (Grain)
+    EXPORT: none
+    ASSERTION: Creates an object with an identical object state as the import
+    ALGORITHM:
+        super <- inGrain
+        type:= inGrain.getType <- none
+        volume:= inGrain.getVolume <- none
+END Copy
+        
+SUBMODULE: clone
+    IMPORT: none
+    EXPORT: cloneGrain(Grain)
+    ASSERTION: Construct a new Grain object using the copy constructor
+    ALGORITHM:
+        CONSTRUCT cloneFood USING COPY CONSTRUCTOR WITH current object
+END clone
+        
+ACCESSORS:
+SUBMODULE: getType
+    IMPORT: none
+    EXPORT: type(String)
+END getType
+
+SUBMODULE: getVolume
+    IMPORT: none
+    EXPORT: volume(Real)
+END getVolume
+    
+
+    
+    
+    
+    
+    
+SUBMODULE: equals
+    IMPORT: inObject(Object)
+    EXPORT: isEqual(boolean)
+    ASSERTION: Two Grains are interchangeable if they have the same name, 
+               storageTemp, packaging, dateMark, type and volume
+    ALGORITHM:
+        isEqual:= FALSE
+        IF inObject is really a Grain THEN
+            make inObject to a Grain named inGrain
+            IF super.equals <- inGrain
+                IF (type.equals <- inGrain.getType)
+                    IF (ABSOLUTE(volume - inGrain.getVolume < 0.01))
+                        isEqual:= TRUE
+                    ENDIF
+                ENDIF
+            ENDIF
+        ENDIF
+END equals
+        
+SUBMODULE: toString
+    IMPORT: none
+    EXPORT: foodString(String)
+    ALGORITHM:
+        foodString:= "Type of food: Grain, Name: " + super.getName <- none
+                       + ", Storage Temperature: " 
+                       + super.getStorageTemp <- none + ", Packaging: " 
+                       + super.getPackaging <- none + ", Best before Date: " 
+                       + (FORMAT TO dd/mm/yyyy)super.getDateMark <- none 
+                       + ", Type: " + type 
+                       + ", Volume: " + volume
+END toString
+
+MUTATORS:
+SUBMODULE: setType
+    IMPORT: inType(String)
+    EXPORT: none
+    ALGORITHM:
+        IF (validateString <- inType) THEN
+            type:= inType
+        ELSE
+            FAIL <- "Invalid type"
+        ENDIF
+END setType
+
+SUBMODULE: setVolume
+    IMPORT: inVolume(Real)
+    EXPORT: none
+    ALGORITHM:
+        IF (validateVolume <- inVolume) THEN
+            volume:= inVolume
+        ELSE
+            FAIL <- "Invalid volume"
+        ENDIF
+END setVolume
+        
+SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: fileString(String)
+    ALGORITHM:
+        fileString:= "Grain, " + super.getName <- none 
+                      + ", " + type  + ", " + volume + ", "
+                      + super.getStorageTemp <- none + ", " 
+                      + (FORMAT TO dd/mm/yyyy)super.getDateMark <- none
+                      + ", " + super.getPackaging <- none
+END toFileString
+
+
+
+
+SUBMODULE: calcSpaceUsed
+    IMPORT: none
+    EXPORT: spaceUsed(Real)
+    ASSERTION: calculates the space used before rounding up
+    ALGORITHM:
+        spaceUsed:= volume * SPACERATIO
+END calcSpaceUsed
+        
+SUBMODULE: calcExpiry
+    IMPORT: today(Calendar)
+    EXPORT: isExpired(boolean)
+    ALGORITHM:
+         isExpired:= FALSE
+END calcExpiry
+
+SUBMODULE: calcSpace
+	IMPORT: food (Food)
+	EXPORT: space(Integer)
+	ASSERTION: calculates space of imported food
+    ALGORITHM:
+        spaceDouble:= food.calcSpaceUsed <- none
+        IF (spaceDouble > (CONVERT TO REAL)((CONVERT TO INTEGER)spaceDouble))
+            spaceInt = (CONVERT TO INTEGER)(spaceDouble + 1.0)
+        ELSE
+            spaceInt = (CONVERT TO INTEGER)spaceDouble
+        ENDIF
+END calcSpace
+            
+PRIVATE SUBMODULES:
+
+SUBMODULE: validateString
+    IMPORT: inString(String)
+    EXPORT: valid(Boolean)
+    ASSERTION: returns true if the string is an empty string and false if
+               string is not an empty string
+    ALGORITHM: 
+        valid:= inString EQUALS ""
+END validateString
+
+SUBMODULE: validateVolume
+    IMPORT: inVolume (Real)
+    EXPORT: valid (boolean)
+    ASSERTION: volume is between 0.2 and 5.0 inclusive
+    ALGORITHM: valid := inVolume >= MINVOLUME AND inVolume =< MAXVOLUME
+END validateVolume

@@ -1,0 +1,159 @@
+/************************************************************
+ *Name: Kay Men Yap
+ *File name: Vegetable.txt
+ *Purpose: Holds information on vegetable items 
+ *Date last modified: 30/5/2018
+ ************************************************************/
+CLASS: Vegetable inherits from Food
+    PUBLIC CLASS CONSTANTS: MINWEIGHT(Real):= 0.2
+                            MAXWEIGHT(Real):= 5.0
+    CLASS FIELDS: type(String), weight(Real)
+
+CONSTRUCTORS:
+Default:
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: weight of 2.0 is valid
+    ALGORITHM:
+        super <- none
+        weight:= 2.0
+END Default
+
+Alternate:
+    IMPORT: inName (String), inStorageTemp (Real), inPackaging (String), 
+            inDay (Integer), inMonth(Integer), inYear(Integer), inWeight (Real)
+    EXPORT: none
+    ASSERTION: Creates the object if the imports are valid and FAILS otherwise
+    ALGORITHM:
+        super <- inName, inStorageTemp, inPackaging, inDay, inMonth, inYear
+        setWeight <- inWeight
+END Alternate
+
+Copy:
+    IMPORT: inVegetable (Vegetable)
+    EXPORT: none
+    ASSERTION: Creates an object with an identical object state as the import
+    ALGORITHM:
+        super <- inVegetable
+        weight:= inVegetable.getWeight <- none
+END Copy
+        
+SUBMODULE: clone
+    IMPORT: none
+    EXPORT: cloneVegetable(Vegetable)
+    ASSERTION: Construct a new Vegetable object using the copy constructor
+    ALGORITHM:
+        CONSTRUCT cloneFood USING COPY CONSTRUCTOR WITH current object
+END clone
+        
+ACCESSORS:
+SUBMODULE: getWeight
+    IMPORT: none
+    EXPORT: weight(Real)
+END getWeight
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SUBMODULE: equals
+    IMPORT: inObject(Object)
+    EXPORT: isEqual(boolean)
+    ASSERTION: Two Vegetables are interchangeable if they have the same name, 
+               storageTemp, packaging, dateMark, type and weight
+    ALGORITHM:
+        isEqual:= FALSE
+        IF inObject is really a Vegetable THEN
+            make inObject to a Vegetable named inVegetable
+            IF super.equals <- inVegetable
+                IF (ABSOLUTE(weight - inVegetable.getWeight < 0.01))
+                    isEqual:= TRUE
+                ENDIF
+            ENDIF
+        ENDIF
+END equals
+        
+SUBMODULE: toString
+    IMPORT: none
+    EXPORT: foodString(String)
+    ALGORITHM:
+        foodString:= "Type of food: Vegetable, Name: " + super.getName <- none
+                       + ", Storage Temperature: " 
+                       + super.getStorageTemp <- none + ", Packaging: " 
+                       + super.getPackaging <- none + ", Best before Date: " 
+                       + (FORMAT TO dd/mm/yyyy)super.getDateMark <- none
+                       + ", Weight: " + weight
+END toString
+
+MUTATORS:
+SUBMODULE: setWeight
+    IMPORT: inWeight(Real)
+    EXPORT: none
+    ALGORITHM:
+        IF (validateWeight <- inWeight) THEN
+            weight:= inWeight
+        ELSE
+            FAIL <- "Invalid weight"
+        ENDIF
+END setWeight
+
+SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: fileString(String)
+    ALGORITHM:
+        fileString:= "Vegetable, " + super.getName <- none + ", " 
+                      + weight + ", " +  super.getStorageTemp <- none + ", " 
+                      + (FORMAT TO dd/mm/yyyy)super.getDateMark <- none
+                      + ", " + super.getPackaging <- none
+END toFileString
+
+SUBMODULE: calcSpaceUsed
+    IMPORT: none
+    EXPORT: spaceUsed(Real)
+    ASSERTION: calculates the space used before rounding up
+    ALGORITHM:
+        spaceUsed:= weight * SPACERATIO
+END calcSpaceUsed
+        
+SUBMODULE: calcExpiry
+    IMPORT: today(Calendar)
+    EXPORT: isExpired(boolean)
+    ALGORITHM:
+         isExpired:= FALSE
+END calcExpiry
+
+
+
+
+SUBMODULE: calcSpace
+	IMPORT: food (Food)
+	EXPORT: space(Integer)
+	ASSERTION: calculates space of imported food
+    ALGORITHM:
+        spaceDouble:= food.calcSpaceUsed <- none
+        IF (spaceDouble > (CONVERT TO REAL)((CONVERT TO INTEGER)spaceDouble))
+            spaceInt = (CONVERT TO INTEGER)(spaceDouble + 1.0)
+        ELSE
+            spaceInt = (CONVERT TO INTEGER)spaceDouble
+        ENDIF
+END calcSpace
+            
+PRIVATE SUBMODULES:
+
+SUBMODULE: validateWeight
+    IMPORT: inWeight (Real)
+    EXPORT: valid (boolean)
+    ASSERTION: weight is between 0.2 and 5.0 inclusive
+    ALGORITHM: valid := inWeight >= MINWEIGHT AND inWeight =< MAXWEIGHT
+END validateWeight

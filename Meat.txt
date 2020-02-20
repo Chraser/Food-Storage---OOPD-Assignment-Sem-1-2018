@@ -1,0 +1,183 @@
+/************************************************************
+ *Name: Kay Men Yap
+ *File name: Meat.txt
+ *Purpose: Holds information on meat items 
+ *Date last modified: 30/5/2018
+ ************************************************************/
+CLASS: Meat inherits from Food
+    PUBLIC CLASS CONSTANTS: MINWEIGHT(Real):= 0.2
+                            MAXWEIGHT(Real):= 5.0
+    CLASS FIELDS: cut(String), weight(Real)
+
+CONSTRUCTORS:
+Default:
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: loin cut with a weight of 2.0 is valid
+    ALGORITHM:
+        super <- none
+        cut:= "loin"
+        weight:= 2.0
+END Default
+
+Alternate:
+    IMPORT: inName (String), inStorageTemp (Real), inPackaging (String), 
+            inDay (Integer), inMonth(Integer), inYear(Integer),
+            inCut (String), inWeight (Real)
+    EXPORT: none
+    ASSERTION: Creates the object if the imports are valid and FAILS otherwise
+    ALGORITHM:
+        super <- inName, inStorageTemp, inPackaging, inDay, inMonth, inYear
+        setCut <- inCut
+        setWeight <- inWeight
+END Alternate
+
+Copy:
+    IMPORT: inMeat (Meat)
+    EXPORT: none
+    ASSERTION: Creates an object with an identical object state as the import
+    ALGORITHM:
+        super <- inMeat
+        cut:= inMeat.getCut <- none
+        weight:= inMeat.getWeight <- none
+END Copy
+        
+SUBMODULE: clone
+    IMPORT: none
+    EXPORT: cloneMeat(Meat)
+    ASSERTION: Construct a new Meat object using the copy constructor
+    ALGORITHM:
+        CONSTRUCT cloneMeat USING COPY CONSTRUCTOR WITH current object
+END clone
+        
+ACCESSORS:
+SUBMODULE: getCut
+    IMPORT: none
+    EXPORT: cut(String)
+END getCut
+
+SUBMODULE: getWeight
+    IMPORT: none
+    EXPORT: weight(Real)
+END getWeight
+    
+
+    
+    
+    
+    
+    
+SUBMODULE: equals
+    IMPORT: inObject(Object)
+    EXPORT: isEqual(boolean)
+    ASSERTION: Two Meats are interchangeable if they have the same name, 
+               storageTemp, packaging, dateMark, cut and weight
+    ALGORITHM:
+        isEqual:= FALSE
+        IF inObject is really a Meat THEN
+            make inObject to a Meat named inMeat
+            IF super.equals <- inMeat
+                IF (cut.equals <- inMeat.getCut)
+                    IF (ABSOLUTE(weight - inMeat.getWeight < 0.01))
+                        isEqual:= TRUE
+                    ENDIF
+                ENDIF
+            ENDIF
+        ENDIF
+END equals
+        
+SUBMODULE: toString
+    IMPORT: none
+    EXPORT: foodString(String)
+    ALGORITHM:
+        foodString:= "Type of food: Meat, Name: " + super.getName <- none
+                       + ", Storage Temperature: " 
+                       + super.getStorageTemp <- none + ", Packaging: " 
+                       + super.getPackaging <- none + ", Useby Date: " 
+                       + (FORMAT TO dd/mm/yyyy)super.getDateMark <- none\
+                       + ", Cut: " + cut 
+                       + ", Weight: " + weight
+END toString
+
+MUTATORS:
+SUBMODULE: setCut
+    IMPORT: inCut(String)
+    EXPORT: none
+    ALGORITHM:
+        IF (validateString <- inCut) THEN
+            cut:= inCut
+        ELSE
+            FAIL <- "Invalid cut"
+        ENDIF
+END setCut
+
+SUBMODULE: setWeight
+    IMPORT: inWeight(Real)
+    EXPORT: none
+    ALGORITHM:
+        IF (validateWeight <- inWeight) THEN
+            weight:= inWeight
+        ELSE
+            FAIL <- "Invalid weight"
+        ENDIF
+END setWeight
+ 
+SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: fileString(String)
+    ALGORITHM:
+        fileString:= "Meat, " + super.getName <- none 
+                      + ", " + cut  + ", " + weight + ", "
+                      + super.getStorageTemp <- none + ", " 
+                      + (FORMAT TO dd/mm/yyyy)super.getDateMark <- none
+                      + ", " + super.getPackaging <- none
+END toFileString
+ 
+
+ 
+ 
+SUBMODULE: calcSpaceUsed
+    IMPORT: none
+    EXPORT: spaceUsed(Real)
+    ASSERTION: calculates the space used before rounding up
+    ALGORITHM:
+        spaceUsed:= weight * SPACERATIO
+END calcSpaceUsed
+ 
+SUBMODULE: calcExpiry
+    IMPORT: today(Calendar)
+    EXPORT: isExpired(boolean)
+    ALGORITHM:
+         isExpired:= today.isAfter <- super.getDateMark
+END calcExpiry
+
+SUBMODULE: calcSpace
+	IMPORT: food (Food)
+	EXPORT: space(Integer)
+	ASSERTION: calculates space of imported food
+    ALGORITHM:
+        spaceDouble:= food.calcSpaceUsed <- none
+        IF (spaceDouble > (CONVERT TO REAL)((CONVERT TO INTEGER)spaceDouble))
+            spaceInt = (CONVERT TO INTEGER)(spaceDouble + 1.0)
+        ELSE
+            spaceInt = (CONVERT TO INTEGER)spaceDouble
+        ENDIF
+END calcSpace
+            
+PRIVATE SUBMODULES:
+
+SUBMODULE: validateString
+    IMPORT: inString(String)
+    EXPORT: valid(Boolean)
+    ASSERTION: returns true if the string is an empty string and false if
+               string is not an empty string
+    ALGORITHM: 
+        valid:= inString EQUALS ""
+END validateString
+
+SUBMODULE: validateWeight
+    IMPORT: inWeight (Real)
+    EXPORT: valid (boolean)
+    ASSERTION: weight is between 0.2 and 5.0 inclusive
+    ALGORITHM: valid := inWeight >= MINWEIGHT AND inWeight =< MAXWEIGHT
+END validateWeight

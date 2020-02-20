@@ -1,0 +1,106 @@
+/************************************************************
+ *Name: Kay Men Yap
+ *File name: FileIO.txt
+ *Purpose: Handle the file input output operations
+ *Date last modified: 30/5/2018
+ ************************************************************/
+
+Class: FileIO
+
+SUBMODULE: getNumLines
+    IMPORT: fileName(String)
+    EXPORT: numLines(Integer)
+    ALGORITHM:
+        theFile = OPENFILE fileName
+        
+        IF theFile CAN'T BE OPENED THEN
+            FAIL <- "File can't be opened or missing"
+        ENDIF
+
+        numLines:= 0
+
+        INPUT line from theFile
+        WHILE (line NOT EOF)
+            numLines:= numLines + 1
+            INPUT line from  theFile
+        ENDWHILE
+        CLOSEFILE theFile
+END getNumLines
+        
+SUBMODULE: getStorageSize
+    IMPORT: fileName(String), storageArea(String)
+    EXPORT: size(Integer)
+    ALGORITHM:
+        theFile = OPENFILE fileName
+        
+        IF theFile CAN'T BE OPENED THEN
+            FAIL <- "File can't be opened or missing"
+        ENDIF
+
+        size:= 0
+
+        FOR i:= 0 TO 2(inclusive) INC BY 1
+            INPUT line from theFile
+            string:= processString <- line, 0
+            IF string EQUALS storageArea THEN
+                size:= processInteger <- line, 1
+            ENDIF
+        ENDFOR
+        IF size <= 0 THEN
+            FAIL <- "Invalid file format. Size of storage can't be found"
+        ENDIF
+        CLOSEFILE theFile
+END getSize
+
+SUBMODULEM: readFile
+    IMPORT: lineArray(ARRAY OF String), fileName(String), numLines(Integer)
+    EXPORT: none
+    ALGORITHM:
+        theFile = OPENFILE fileName
+        
+        FOR i:=0 TO numLines(exclusive) INC BY 1
+            INPUT line from theFile 
+            lineArray[i]:= line
+        ENDFOR
+
+        CLOSEFILE theFile
+END readFile
+
+
+SUBMODULE: processString
+    IMPORT: line(String), position(Integer)
+    EXPORT: string(String)
+    ALGORITHM:
+        lineArray:= SPLIT line on ", ?"
+        string:= lineArray[position]
+
+SUBMODULE: processInteger
+    IMPORT: line(String), position(Integer)
+    EXPORT: integer(Integer)
+    ALGORITHM:
+        lineArray:= SPLIT line on ", ?"
+        integer:= (Convert To Integar)lineArray[position]
+
+SUBMODULE: processReal
+    IMPORT: line(String), position(Integer)
+    EXPORT: real(real)
+    ALGORITHM:
+        lineArray:= SPLIT line on ", ?"
+        real:= (Convert To Real)lineArray[position]
+        
+SUBMODULE: processDate
+    IMPORT: string(String), position(Integer)
+    EXPORT: integer(Integer)
+    ALGORITHM:
+        lineArray:= SPLIT line on "/"
+        integer:= (Convert To Integar)lineArray[position]
+        
+SUBMODULE: writeOutStorage
+    IMPORT: fileString(String), fileName(String)
+    EXPORT: none
+    ALGORITHM:
+        theFile:= OPENFILE fileName
+        WRITE fileString(String) TO theFile
+        CLOSEFILE
+        OUTPUT "The storage has been written to " + fileName
+END writeOutStorage

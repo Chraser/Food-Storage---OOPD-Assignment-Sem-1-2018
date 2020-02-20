@@ -1,0 +1,184 @@
+/************************************************************
+ *Name: Kay Men Yap
+ *File name: Fruit.txt
+ *Purpose: Holds information on fruit items 
+ *Date last modified: 30/5/2018
+ ************************************************************/
+CLASS: Fruit inherits from Food
+    PUBLIC CLASS CONSTANTS: MINNUMPIECES(Integer):= 1
+                            MAXNUMPIECES(Integer):= 20
+    CLASS FIELDS: type(String), numPieces(Integer)
+
+CONSTRUCTORS:
+Default:
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: citrus fruit type with a numPieces of 2 is valid
+    ALGORITHM:
+        super <- none
+        type:= "citrus"
+        numPieces:= 2.0
+END Default
+
+Alternate:
+    IMPORT: inName (String), inStorageTemp (Real), inPackaging (String), 
+            inDay (Integer), inMonth(Integer), inYear(Integer),
+            inType (String), inNumPieces (Integer)
+    EXPORT: none
+    ASSERTION: Creates the object if the imports are valid and FAILS otherwise
+    ALGORITHM:
+        super <- inName, inStorageTemp, inPackaging, inDay, inMonth, inYear
+        setType <- inType
+        setNumPieces <- inNumPieces
+END Alternate
+
+Copy:
+    IMPORT: inFruit (Fruit)
+    EXPORT: none
+    ASSERTION: Creates an object with an identical object state as the import
+    ALGORITHM:
+        super <- inFruit
+        type:= inFruit.getType <- none
+        numPieces:= inFruit.getNumPieces <- none
+END Copy
+        
+SUBMODULE: clone
+    IMPORT: none
+    EXPORT: cloneFruit(Fruit)
+    ASSERTION: Construct a new Fruit object using the copy constructor
+    ALGORITHM:
+        CONSTRUCT cloneFruit USING COPY CONSTRUCTOR WITH current object
+END clone
+        
+ACCESSORS:
+SUBMODULE: getType
+    IMPORT: none
+    EXPORT: type(String)
+END getType
+
+SUBMODULE: getNumPieces
+    IMPORT: none
+    EXPORT: numPieces(Integer)
+END getNumPieces
+    
+
+    
+    
+    
+    
+    
+SUBMODULE: equals
+    IMPORT: inObject(Object)
+    EXPORT: isEqual(boolean)
+    ASSERTION: Two Fruits are interchangeable if they have the same name, 
+               storageTemp, packaging, dateMark, type and numPieces
+    ALGORITHM:
+        isEqual:= FALSE
+        IF inObject is really a Fruit THEN
+            make inObject to a Fruit named inFruit
+            IF super.equals <- inFruit
+                IF (type.equals <- inFruit.getType)
+                    IF (numPieces = inFruit.getNumPieces <- none)
+                        isEqual:= TRUE
+                    ENDIF
+                ENDIF
+            ENDIF
+        ENDIF
+END equals
+        
+SUBMODULE: toString
+    IMPORT: none
+    EXPORT: foodString(String)
+    ALGORITHM:
+        foodString:= "Type of food: Fruit, Name: " + super.getName <- none
+                       + ", Storage Temperature: " 
+                       + super.getStorageTemp <- none + ", Packaging: " 
+                       + super.getPackaging <- none + ", Useby Date: " 
+                       + (FORMAT TO dd/mm/yyyy)super.getDateMark <- none
+                       + ", Type: " + type 
+                       + ", NumPieces: " + numPieces
+END toString
+
+MUTATORS:
+SUBMODULE: setType
+    IMPORT: inType(String)
+    EXPORT: none
+    ALGORITHM:
+        IF (validateString <- inType) THEN
+            type:= inType
+        ELSE
+            FAIL <- "Invalid type"
+        ENDIF
+END setType
+
+SUBMODULE: setNumPieces
+    IMPORT: inNumPieces(Integer)
+    EXPORT: none
+    ALGORITHM:
+        IF (validateNumPieces <- inNumPieces) THEN
+            numPieces:= inNumPieces
+        ELSE
+            FAIL <- "Invalid numPieces"
+        ENDIF
+END setNumPieces
+        
+
+SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: fileString(String)
+    ALGORITHM:
+        fileString:= "Fruit, " + super.getName <- none 
+                      + ", " + type + ", " + numPieces + ", "
+                      + super.getStorageTemp <- none + ", " 
+                      + (FORMAT TO dd/mm/yyyy)super.getDateMark <- none
+                      + ", " + super.getPackaging <- none 
+END toFileString
+
+
+
+SUBMODULE: calcSpaceUsed
+    IMPORT: none
+    EXPORT: spaceUsed(Real)
+    ASSERTION: calculates the space used before rounding up
+    ALGORITHM:
+        spaceUsed:= (CONVERT TO Real)numPieces * SPACERATIO
+END calcSpaceUsed
+        
+SUBMODULE: calcExpiry
+    IMPORT: today(Calendar)
+    EXPORT: isExpired(boolean)
+    ALGORITHM:
+         isExpired:= today.isAfter <- super.getDateMark
+END calcExpiry
+
+SUBMODULE: calcSpace
+	IMPORT: food (Food)
+	EXPORT: space(Integer)
+	ASSERTION: calculates space of imported food
+    ALGORITHM:
+        spaceDouble:= food.calcSpaceUsed <- none
+        IF (spaceDouble > (CONVERT TO REAL)((CONVERT TO INTEGER)spaceDouble))
+            spaceInt = (CONVERT TO INTEGER)(spaceDouble + 1.0)
+        ELSE
+            spaceInt = (CONVERT TO INTEGER)spaceDouble
+        ENDIF
+END calcSpace
+            
+PRIVATE SUBMODULES:
+
+SUBMODULE: validateString
+    IMPORT: inString(String)
+    EXPORT: valid(Boolean)
+    ASSERTION: returns true if the string is an empty string and false if
+               string is not an empty string
+    ALGORITHM: 
+        valid:= inString EQUALS ""
+END validateString
+
+SUBMODULE: validateNumPieces
+    IMPORT: inNumPieces (Integer)
+    EXPORT: valid (boolean)
+    ASSERTION: numPieces is between 0.2 and 5.0 inclusive
+    ALGORITHM: valid := inNumPieces >= MINNUMPIECES AND 
+                        inNumPieces =< MAXNUMPIECES
+END validateNumPieces

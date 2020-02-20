@@ -1,0 +1,206 @@
+/************************************************************
+ *Name: Kay Men Yap
+ *File name: Menu.txt
+ *Purpose: Handles menu operations
+ *Date last modified: 30/5/2018
+ ************************************************************/
+CLASS: Menu
+
+SUBMODULE: run
+IMPORT: none    
+EXPORT: none
+ALGORITHM: 
+    storageExist:= FALSE
+    runProgram:= TRUE
+    DO
+        optionSelected:= UserIO.getMenuSelection <- none
+        CASE optionSelected
+            1:
+                IF storageExist THEN
+                    addFood <- storage
+                ELSE
+                    OUTPUT "ERROR: Storage facility does not exist yet. "
+                            + "Can't add food."
+                ENDIF
+            2:
+                IF storageExist THEN
+                    removeFood <- storage
+                ELSE
+                    OUTPUT "ERROR: Storage facility does not exist yet. "
+                            + " Can't remove food."
+                ENDIF
+            3:
+                IF storageExist THEN
+                    UserIO.displayContents <- storage
+                ELSE
+                    OUTPUT "ERROR: Storage facility does not exist yet. "
+                            + "Can't display content of food."
+                ENDIF
+            4:
+                IF storageExist THEN
+                    UserIO.findExpired <- storage
+                ELSE
+                    OUTPUT "ERROR: Storage facility does not exist yet. "
+                            + "Can't find expired food."
+                ENDIF
+            5:
+                readFileName:= UserIO.stringInput <- "Enter file name"
+                                                          + " to be read"
+                storage:= Storage <- readFileName
+                storageExist:= TRUE
+            6:
+                IF storageExist THEN
+                    writeFileName:= UserIO.stringInput <- "Enter file name"
+                                                          + " to be written to"
+                    storageFileString:= storage.toFileString <- none
+                    FileIO.writeOutStorage <- storageFileString, writeFileName
+                ELSE
+                    OUTPUT "ERROR: Storage facility does not exist yet. "
+                            + "Can't write out storage to file"
+                ENDIF
+            DEFAULT:
+                runProgram:= FALSE
+                OUTPUT "Program exitted"
+        END CASE
+    WHILE(runProgram)
+END run
+
+
+
+SUBMODULE: addFood
+    IMPORT: storage(Storage)
+    EXPORT: none
+    ALGORITHM:
+        foodType:= UserIO.integerInput <- "Enter food type: " + NEWLINE
+                                           + "1. Meat " + NEWLINE + "2. Grain "
+                                           + NEWLINE + "3. Fruit "  + NEWLINE
+                                           + "4. Vegetable", 1, 4
+        error:= ""
+        CASE foodType
+            1:
+                name:= UserIO.stringInput <- "Enter name of meat"
+                cut:= UserIO.stringInput <- "Enter cut of meat"
+                weight:= UserIO.realInput <- "Enter weight of meat",
+                                             Meat.MINWEIGHT, Meat.MAXWEIGHT
+                storageTemp:= UserIO.storageTempInput <- "meat"
+                DO
+                    OUTPUT error
+                    year:= UserIO.integerInput <- "Enter year of Use by date:", 
+                                                   2000, 3000
+                    month:= UserIO.integerInput <- "Enter month of Use by date:", 
+                                                   1, 12
+                    day:= UserIO.integerInput <- "Enter day of Use by"
+                                                 + " date:", 1, 
+                                                 UserIO.daysInMonth <- month, year
+                    error:= "Enter a use by date that is not in the past"
+                WHILE NOT (UserIO.validateDateMark <- day, month, year)
+                packaging:= UserIO.stringInput <- "Enter packaging of meat"
+                food:= Meat <- name, storageTemp, packaging, day, month, 
+                               year, cut, weight
+            2:
+                name:= UserIO.stringInput <- "Enter name of grain"
+                type:= UserIO.stringInput <- "Enter type of grain"
+                volume:= UserIO.realInput <- "Enter volume of grain", 
+                                              Grain.MINVOLUME, Grain.MAXVOLUME
+                storageTemp:= UserIO.storageTempInput <- "grain"
+                DO
+                    OUTPUT error
+                    year:= UserIO.integerInput <- "Enter year of best before"
+                                                  + " date:", 2000, 3000
+                    month:= UserIO.integerInput <- "Enter month of best before"
+                                                   + " date:", 1, 12
+                    day:= UserIO.integerInput <- "Enter day of best before"
+                                                 + " date:", 1, 
+                                                 UserIO.daysInMonth <- month, year
+                    error:= "Enter a best before date that is not in the past"
+                WHILE NOT (UserIO.validateDateMark <- day, month, year)
+                packaging:= UserIO.stringInput <- "Enter packaging of grain"
+                food:= Grain <- name, storageTemp, packaging, day, month, 
+                                year, type, volume
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            3:
+                name:= UserIO.stringInput <- "Enter name of fruit"
+                type:= UserIO.stringInput <- "Enter type of fruit"
+                numPieces:= UserIO.integerInput <- "Enter number of pieces of fruit",
+                                                    Fruit.MINNUMPIECES,
+                                                    Fruit.MAXNUMPIECES
+                storageTemp:= UserIO.storageTempInput <- "fruit"
+                DO
+                    OUTPUT error
+                    year:= UserIO.integerInput <- "Enter year of Use by date:", 
+                                                   2000, 3000
+                    month:= UserIO.integerInput <- "Enter month of Use by date:", 
+                                                   1, 12
+                    day:= UserIO.integerInput <- "Enter day of Use by"
+                                                 + " date:", 1, 
+                                                 UserIO.daysInMonth <- month, year
+                    error:= "Enter a use by date that is not in the past"
+                WHILE NOT (UserIO.validateDateMark <- day, month, year)
+                packaging:= UserIO.stringInput <- "Enter packaging of fruit"
+                food:= Fruit <- name, storageTemp, packaging, day, month, 
+                               year, type, numPieces
+            DEFAULT:
+                name:= UserIO.stringInput <- "Enter name of vegetable"
+                weight:= UserIO.realInput <- "Enter weight of vegetable", Vegetable.MINWEIGHT,
+                                              Vegetable.MAXWEIGHT
+                storageTemp:= UserIO.storageTempInput <- "vegetable"
+                DO
+                    OUTPUT error
+                    year:= UserIO.integerInput <- "Enter year of best before"
+                                                  + " date:", 2000, 3000
+                    month:= UserIO.integerInput <- "Enter month of best before"
+                                                   + " date:", 1, 12
+                    day:= UserIO.integerInput <- "Enter day of best before"
+                                                 + " date:", 1, 
+                                                 UserIO.daysInMonth <- month, year
+                    error:= "Enter a best before date that is not in the past"
+                WHILE NOT (UserIO.validateDateMark <- day, month, year)
+                packaging:= UserIO.stringInput <- "Enter packaging of vegetable"
+                food:= Vegetable <- name, storageTemp, packaging, day, month, 
+                                    year, weight
+        END CASE
+        storage.addFood <- food
+END addFood
+
+
+SUBMODULE: removeFood
+    IMPORT: storage(Storage)
+    EXPORT: none
+    ALGORITHM:
+        storageArea:= integerInput("Enter storage area to be displayed" 
+                                    + NEWLINE + "1. Freezer" + NEWLINE
+                                    + "2. Fridge" + NEWLINE
+                                    + "3. Pantry")
+        CASE storageArea
+            1:
+                area:= "freezer"
+                max:= storage.getNumFreezer <- none
+            2:
+                area:= "fridge"
+                max:= storage.getNumFridge <- none
+            DEFAULT:
+                area:= "pantry"
+                max:= storage.getNumPantry <- none
+        ENDCASE
+        storageLocation:= integerInput <- "Enter location in " + area, 1, max
+        storage.removeFood <- storageArea, storageLocation
+        OUTPUT "Food has been removed"
+END removeFood

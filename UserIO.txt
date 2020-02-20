@@ -1,0 +1,188 @@
+/************************************************************
+ *Name: Kay Men Yap
+ *File name: UserIO.txt
+ *Purpose: Handles all of user inputs and outputs
+ *Date last modified: 30/5/2018
+ ************************************************************/
+COMMENT: Parts of this file comprise externally-obtained code.
+Class: UserIO
+
+SUBMODULE: getMenuSelection
+    IMPORT: none
+    EXPORT: optionSelected (Integer)
+    ASSERTION: optionSelected is an Integer between 1 to 7
+    ALGORITHM:
+        error:= ""
+        DO
+            TRY
+                OUTPUT error
+                OUTPUT "Select an option:"
+                OUTPUT "1. Add food"
+                OUTPUT "2. Remove food"
+                OUTPUT "3. Display contents"
+                OUTPUT "4. Find expired"
+                OUTPUT "5. Read in storage"
+                OUTPUT "6. Write out storage"
+                OUTPUT "7. Exit"
+                INPUT optionSelected(Integer)
+                error:= "Invalid option selected. Please enter an integer "
+                         + "between 1 to 7 inclusive."
+            CATCH (invalid data type)
+                CLEAR INPUT
+                error:= "Invalid input. Please enter an integer."
+            END TRY
+        WHILE ((optionSelected < 1) OR (optionSelected > 7))
+END getMenuSelection
+
+SUBMODULE: stringInput
+    IMPORT: promptMessage(String)
+    EXPORT: string(String)
+    ALGORITHM:
+         error:= ""
+         DO
+            OUTPUT error
+            OUTPUT promptMessage
+            INPUT string(String)
+            error:= "ERROR: Input can only be a non empty string"
+         WHILE (string EQUALS "")
+END stringInput
+
+SUBMODULE: integerInput
+    IMPORT: promptMessage(String), min(Integer), max(Integer)
+    EXPORT: integer(Integer)
+    ALGORITHM:
+        error:= ""
+        DO
+            OUTPUT error
+            OUTPUT promptMessage
+            TRY
+                INPUT integer(Integer)
+                error:= "ERROR: Input can only be an integer between " + min
+                         + " and " + max + " inclusive"
+            CATCH (invalid data type)
+                CLEAR INPUT
+                error:= "Invalid input. Integer input required."
+                        + " Enter again please."
+            END TRY
+        WHILE (integer < min OR integer > max)
+END integerInput
+
+SUBMODULE: realInput
+    IMPORT: promptMessage(String), min(Real), max(Real)
+    EXPORT: real(Real)
+    ALGORITHM:
+        error:= ""
+        DO
+            OUTPUT error
+            OUTPUT promptMessage
+            TRY
+                INPUT real(Real)
+                error:= "ERROR: Input can only be a real between " + min
+                         + " and " + max + " inclusive"
+            CATCH (invalid data type)
+                CLEAR INPUT
+                error:= "Invalid input. Real input required."
+                        + " Enter again please."
+            END TRY
+        WHILE (real < min OR real > max)
+END realInput
+
+SUBMODULE: storageTempInput
+    IMPORT: promptMessage(String)
+    EXPORT: storageTemp(Real)
+    ALGORITHM:
+        error:= ""
+        prompt:= "Enter storage temperature of " + promptMessage + " that is "
+                  + " in the range of Pantry(" + Storage.PANTRYMINTEMP + " - " 
+                  + Storage.PANTRYMAXTEMP + "), Fridge(" 
+                  + Storage.FRIDGEMINTEMP + " - " 
+                  + Storage.FRIDGEMAXTEMP + "), or Freezer(" 
+                  + Storage.FREEZERMINTEMP + " - " + Storage.FREEZERMAXTEMP 
+                  + ")"
+        storageTemp:= -100
+        DO
+            OUTPUT error
+            OUTPUT prompt
+            TRY
+                INPUT storageTemp(Real)
+                error:= "ERROR: Input can only be a real in the range specified above"
+            CATCH (invalid data type)
+                CLEAR INPUT
+                error:= "Invalid input. Real input required."
+                        + " Enter again please."
+            END TRY
+        WHILE NOT ((storageTemp >= Storage.FREEZERMINTEMP AND
+               storageTemp <= Storage.FREEZERMAXTEMP) OR
+              (storageTemp >= Storage.FRIDGEMINTEMP AND 
+               storageTemp <= Storage.FRIDGEMAXTEMP) OR
+              (storageTemp >= Storage.PANTRYMINTEMP AND
+               storageTemp <= Storage.PANTRYMAXTEMP))
+END storageTempInput
+
+SUBMODULE: displayContents
+    IMPORT: storage(Storage)
+    EXPORT: none
+    ALGORITHM:
+        storageArea:= integerInput <- "Enter storage area to be displayed" 
+                                      + NEWLINE + "1. Freezer" + NEWLINE
+                                      + "2. Fridge" + NEWLINE
+                                      + "3. Pantry", 1, 3
+        OUTPUT storage.displayContents <- storageArea
+END displayContents
+
+
+
+
+
+
+
+SUBMODULE: findExpired
+    IMPORT: storage(Storage)
+    EXPORT: none
+    ALGORITHM:
+        expiredString:= storage.findExpired <- none
+        OUTPUT expiredString
+END findExpired
+
+COMMENT: Obtained from OLD Worked Examples in Object Orientation Example 
+         in Unit Materials of OOPD (Accessed on 28 May 2018)    
+SUBMODULE: daysInMonth
+    IMPORT: month(Integer), year(Integer)
+    EXPORT: numDays(Integer)
+    ALGORITHM:
+        IF (( month = 4 ) OR ( month = 6 ) OR ( month = 9 ) OR 
+            ( month = 11 )) THEN
+            numDays:= 30
+        ELSE IF (( month = 1 ) OR ( month = 3 ) OR
+                ( month = 5 ) OR ( month = 7 ) OR
+                ( month = 8 ) OR ( month = 10 ) OR
+                ( month = 12 ))
+            numDays:= 31
+        ELSE IF (isLeapYear(year))
+            numDays:= 29
+        ELSE
+            numDays:= 28
+END inDaysInMonth
+
+SUBMODULE: isLeapYear
+    IMPORT: year(Integer)
+    EXPORT: isLeap(boolean)
+    ALGORITHM:
+        isLeap:=(( year MOD 4 = 0 ) && (!(( year MOD 100 = 0 ) && 
+                 ( year MOD 400 != 0 ))))
+END isLeapYear
+
+COMMENT: End of code obtained from OLD Worked Examples in Object Orientation 
+         Example in Unit Materials of OOPD
+
+SUBMODULE: validateDateMark
+    IMPORT: inDay(Integer), month(Integer), year(Integer)
+    EXPORT: valid(boolean)
+    ASSERTION: dateMark is valid if dateMark is not in the past
+    ALGORITHM:
+        date:= CONSTRUCT Calendar USING day, month, year
+        COMMENT: The default constructor of Calendar will construct
+                 a Calendar object with current date
+        today:= CONSTRUCT Calendar USING default
+        valid:= NOT (date.isBefore <- today)
+END validateDateMark

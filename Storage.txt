@@ -1,0 +1,534 @@
+/************************************************************
+ *Name: Kay Men Yap
+ *File name: Storage.txt
+ *Purpose: Stores food in a 2D Array which is a freezer, fridge
+           and pantry
+ *Date last modified: 30/5/2018
+ ************************************************************/
+
+ Class: Storage
+    CLASS CONSTANT: FREEZERMINTEMP(Real):= -27.5
+                    FREEZERMAXTEMP(Real):= -5.0
+                    FRIDGEMINTEMP(Real):= -2.0
+                    FRIDGEMAXTEMP(Real):= 6.0
+                    PANTRYMINTEMP(Real):= 8.0
+                    PANTRYMINTEMP(Real):= 25.0
+                    
+    CLASS FIELDS: storageArray(2D ARRAY OF Food)
+                  numFreezer(Integer)
+                  numFridge(Integer)
+                  numPantry(Integer)
+
+CONSTRUCTOR:
+Default
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: an empty storage with capacity of 10 in each
+               storage area is valid
+    ALGORITHM:
+        CREATE storageArray(ARRAY OF Food ROW SIZE OF 3 BY 10)
+        numFreezer:= 0
+        numFridge:= 0
+        numPantry:= 0
+END Default
+        
+Alternate:
+    IMPORT: inFileName(String)
+    EXPORT: none
+    ASSERTION: Creates the object if the imports are valid and FAILS otherwise
+    ALGORITHM:
+        numLines:= FileIO.getNumLines <- inFileName
+        IF numLines < 3 THEN
+            FAIL <- "Invalid file format. Need at least 3 lines in file"
+        }
+        freezerSize:= FileIO.getStorageSize <- inFileName, "Freezer"
+        fridgeSize:= FileIO.getStorageSize <- inFileName, "Fridge"
+        pantrySize:= FileIO.getStorageSize <- inFileName, "Pantry"
+        storageArray(2D ARRAY of Food SIZE OF 3)
+        storageArray[0](SIZE OF freezerSize)
+        storageArray[1](SIZE OF fridgeSize)
+        storageArray[2](SIZE OF pantrySize)
+        lineArray(ARRAY OF String SIZE OF numLines)
+        FileIO.readFile <- inFileName, lineArray, numLines
+        storeFood <- lineArray
+END Alternate
+        
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+Copy:
+    IMPORT: inStorage(Storage)
+    EXPORT: none
+    ASSERTION: Creates an object with an identical object state as the import
+    ALGORITHM:
+        numFreezer:= inStorage.getNumFreezer <- none
+        numFridge:= inStorage.getNumFridge <- none
+        numPantry:= inStorage.getNumPantry <- none
+        inStorageArray:= inStorage.getStorageArray <- none
+        storageArray(2D ARRAY OF Food SIZE OF inStorageArray)
+        storageArray[0](SIZE OF inStorageArray[0])
+        storageArray[1](SIZE OF inStorageArray[1])
+        storageArray[2](SIZE OF inStorageArray[2])
+        FOR row:= 0 to SIZE OF inStorageArray(exclusive) INC BY 1
+            FOR column:= 0 TO SIZE OF inStorageArray[row](exclusive) INC BY 1
+                storageArray[i]:= inStorageArray[row][column]
+            ENDFOR
+        ENDFOR
+END Copy
+
+SUBMODULE: clone
+    IMPORT: none
+    EXPORT: cloneShapeBox(ShapeBox)
+    ALGORITHM:
+        CONSTRUCT cloneShapeBox USING COPY CONSTRUCTOR WITH current object
+END clone
+        
+ACCESSORS:
+SUBMODULE: getStorageArray
+    IMPORT: none
+    EXPORT: storageArrayCopy(ARRAY OF Shape)
+    ALGORITHM:
+        storageAreaCopy(2D ARRAY OF Food SIZE OF 3)
+        FOR i:= SIZE OF shapes(exclusive) INC BY 1
+            shapesCopy[i]:= shapes[i].clone <- none
+        ENDFOR
+END getStorageArray
+
+SUBMODULE: getNumFreezer
+    IMPORT: none
+    EXPORT: numFreezer
+END getNumFreezer
+
+SUBMODULE: getNumFridge
+    IMPORT: none
+    EXPORT: numFridge
+END getNumFridge
+    
+SUBMODULE: getNumPantry
+    IMPORT: none
+    EXPORT: numPantry
+END getNumPantry
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+SUBMODULE: equals
+    IMPORT: inObject(Object)
+    EXPORT: isEqual(boolean)
+    ASSERTION: Two Storage are interchangeable if they have the same
+               numFreezer, numFridge, numPantry, contents in storageArray 
+    ALGORITHM:
+        isEqual:= FALSE
+        IF inObject is really a Storage THEN
+            make inObject to a inStorage named inStorage
+            IF numFreezer = inStorage.getNumFreezer <- none
+                IF numFridge = inStorage.getNumFridge <- none
+                    IF numPantry = inStorage.getNumPantry <- none
+                        IF arrayEquals <- inStorage.getStorageArray <- none
+                            isEqual:= TRUE
+                        ENDIF
+                    ENDIF
+                ENDIF
+            ENDIF
+        ENDIF
+END equals
+
+SUBMODULE: toString
+    IMPORT: none
+    EXPORT: storageString(String)
+    ALGORITHM:
+        storageString:= ""
+        FOR row:= 0 to SIZE of storageArray(exclusive) INC BY 1
+            CASE row
+                0:
+                    storageString:= toFreezerString <- none
+                1:
+                    storageString:= storageString + NEWLINE
+                                    + toFridgeString <- none
+                DEFAULT:
+                    storageString:= storageString + NEWLINE
+                                    + toPantryString <- none
+            ENDCASE
+        ENDFOR
+END toString
+
+SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: fileString(String)
+    ALGORITHM:
+        fileString:= "Freezer, " + SIZE OF storageArray[0]
+                      + NEWLINE + "Fridge, " + SIZE OF storageArray[1]
+                      + NEWLINE + "Pantry, " + SIZE OF storageArray[2]
+        FOR row:= 0 to SIZE of storageArray(exclusive) INC BY 1
+            FOR column:= 0 TO SIZE OF storageArray[row](exclusive) INC BY 1
+                food:= storageArray[row][column]
+                IF Food NOT EQUALS NULL THEN
+                    fileString:= fileString + NEWLINE 
+                                    + food.toFileString <- none
+                ENDIF
+            ENDFOR
+        ENDFOR
+END toFileString
+
+
+
+
+
+
+
+
+
+
+
+
+MUTATORS:
+SUBMODULE: addFood
+    IMPORT: inFood(Food)
+    EXPORT: none
+    ALGORITHM:
+        storageTemp:= inFood.getStorageTemp <- none
+        IF validateStorageTemp <- storageTemp, FREEZERMINTEMP, FREEZERMAXTEMP
+            IF numFreezer < SIZE OF storageArray[0] THEN
+                storageArray[0][numFreezer]:= inFood
+                numFreezer = numFreezer + 1
+            ELSE
+                FAIL <- "Freezer is full"
+            ENDIF
+        ELSE IF validateStorageTemp <- storageTemp, FRIDGEMINTEMP, FRIDGEMAXTEMP
+            IF numFridge < SIZE OF storageArray[1] THEN
+                storageArray[1][numFridge]:= inFood
+                numFridge:= numFridge + 1
+            ELSE
+                FAIL <- "Fridge is full"
+            ENDIF
+        ELSE IF validateStorageTemp <- storageTemp, PANTRYMINTEMP, PANTRYMAXTEMP
+            IF numPantry < SIZE OF storageArray[2] THEN
+                storageArray[2][numPantry]:= inFood
+                numPantry:= numPantry + 1
+            ELSE
+                FAIL <- "Pantry is full"
+            ENDIF
+        ENDIF
+END addFood
+
+SUBMODULE: removeFood
+    IMPORT: storageArea(Integer), storageLocation(Integer)
+    EXPORT: none
+    ALGORITHM:
+        storageArea = storageArea - 1
+        storageLocation = storageLocation - 1
+        IF storageArray[storageArea][storageLocation] EQUALS NULL
+            FAIL <- "No food item at storage location and area"
+        ENDIF
+        CASE storageArea
+            0:
+                numFreezer:= numFreezer - 1
+                max:= numFreezer
+            1:
+                numFridge:= numFridge - 1
+                max:= numFridge
+            DEFAULT:
+                numPantry:= numPantry - 1
+                max:= numPantry
+        ENDCASE
+        FOR column:= storageLocation TO max(exclusive) INC BY 1
+            storageArray[storageArea][column]:= storageArray[storageArea][column + 1]
+        ENDFOR
+        storageArray[storageArea][max]:= NULL
+END removeFood
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SUBMODULE: displayContents
+    IMPORT: storageArea(Integer)
+    EXPORT: displayString(String)
+    ALGORITHM:
+        CASE storageArea
+            1:
+                displayString:= toFreezerString <- none
+            2:
+                displayString:= toFridgeString <- none
+            3:
+                displayString:= toPantryString <- none
+        ENDCASE
+END displayContents
+
+SUBMODULE: findExpired
+    IMPORT: none
+    EXPORT: expiredString
+    ALGORITHM:
+        expiredString:= ""
+        COMMENT: constructs a calendar object with today's date
+        today:= Calendar <- none
+        FOR row:= 0 to SIZE of storageArray(exclusive) INC BY 1
+            numExpired:= 0
+            CASE row
+                0:
+                    expiredString:= "Freezer"
+                    max:= numFreezer
+                1:
+                    expiredString:= expiredString + NEWLINE + "Fridge"
+                    max:= numFridge
+                2:
+                    expiredString:= expiredString + NEWLINE + "Pantry"
+                    max:= numPantry
+            FOR column:= 0 TO max(exclusive) INC BY 1
+                food = storageArray[row][column]
+                IF food.calcExpiry <- today THEN
+                    expiredString:= expiredString + +NEWLINE + column + ". "
+                                    + storageArray[row][column].toString <- none
+                    numExpired = numExpired + 1
+                ENDIF
+            ENDFOR
+            IF numExpired = 0
+                expiredString:= expiredString + NEWLINE
+                                + "No food expired here"
+            ENDIF
+        ENDFOR
+END findExpired
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PRIVATE SUBMODULES:
+
+SUBMODULE: arrayEquals
+    IMPORT: inStorageArray(2D ARRAY OF Food)
+    EXPORT: isEqual(boolean)
+    ASSERTION: storageArray is equal to inStorageArray
+    ALGORITHM:
+        isArrayEquals:= TRUE
+        DO  
+            column:= 0
+            IF NOT storageArray[0][column].equals <- inStorageArray[0][column]
+                isArrayEquals:= FALSE
+            ENDIF
+            column:= column + 1
+        WHILE (isArrayEquals AND column < numFreezer)
+        DO  
+            column:= 0
+            IF NOT storageArray[1][column].equals <- inStorageArray[1][column]
+                isArrayEquals:= FALSE
+            ENDIF
+            column:= column + 1
+        WHILE (isArrayEquals AND column < numFridge)
+        DO  
+            column:= 0
+            IF NOT storageArray[2][column].equals <- inStorageArray[2][column]
+                isArrayEquals:= FALSE
+            ENDIF
+            column:= column + 1
+        WHILE (isArrayEquals AND column < numPantry)
+END arrayEquals
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SUBMODULE: storeFood
+    IMPORT: lineArray(ARRAY OF String)
+    EXPORT: none
+    ALGORITHM:
+        FOR i:= 3 to SIZE OF lineArray(exclusive) INC BY 1
+            line:= lineArray[i]
+            foodType:= processString <- line, 0
+            IF foodType EQUALS "Meat" THEN
+                name:= FileIO.processString <- line, 1
+                cut:= FileIO.processString <- line, 2
+                weight:= FileIO.processReal <- line, 3
+                storageTemp:= FileIO.processReal <- line, 4
+                date:= FileIO.processString <- line, 5
+                day:= FileIO.processDate <- date, 0
+                month:= FileIO.processDate <- date, 1
+                year:= FileIO.processDate <- date, 2
+                packaging:= FileIO.processString <- line, 6
+                food:= Meat <- name, storageTemp, packaging, day, month,
+                               year, cut, weight
+                addFood <- Food
+            ELSE IF foodType EQUALS "Grain"
+                name:= FileIO.processString <- line, 1
+                type:= FileIO.processString <- line, 2
+                volume:= FileIO.processReal <- line, 3
+                storageTemp:= FileIO.processReal <- line, 4
+                date:= FileIO.processString <- line, 5
+                day:= FileIO.processDate<- date, 0
+                month:= FileIO.processDate <- date, 1
+                year:= FileIO.processDate <- date, 2
+                packaging:= FileIO.processString <- line, 6
+                food:= Grain <- name, storageTemp, packaging, day, month,
+                               year, type, volume
+                addFood <- Food
+            ELSE IF foodType EQUALS "Fruit"
+                name:= FileIO.processString <- line, 1
+                type:= FileIO.processString <- line, 2
+                numPieces:= FileIO.processInteger <- line, 3
+                storageTemp:= FileIO.processReal <- line, 4
+                date:= FileIO.processString <- line, 5
+                day:= FileIO.processDate <- date, 0
+                month:= FileIO.processDate <- date, 1
+                year:= FileIO.processDate <- date, 2
+                packaging:= FileIO.processString <- line, 6
+                food:= Fruit <- name, storageTemp, packaging, day, month,
+                               year, type, numPieces
+                addFood <- Food
+            ELSE IF foodType EQUALS "Vegetable"
+                name:= FileIO.processString <- line, 1
+                weight:= FileIO.processReal <- line, 2
+                storageTemp:= FileIO.processReal <- line, 3
+                date:= FileIO.processString <- line, 4
+                day:= FileIO.processDate <- date, 0
+                month:= FileIO.processDate <- date, 1
+                year:= FileIO.processDate <- date, 2
+                packaging:= FileIO.processString <- line, 5
+                food:= Vegetable <- name, storageTemp, packaging, day, month,
+                               year, weight
+                addFood <- Food
+            ENDIF
+        ENDFOR
+END createFood
+
+SUBMODULE: validateStorageTemp
+    IMPORT: inStorageTemp (Real), min(Real), max(Real)
+    EXPORT: valid (boolean)
+    ASSERTION: returns true if inStorageTemp is between min and max 
+               inclusive otherwise false
+    ALGORITHM: valid := inStorageTemp >= min AND inStorageTemp =< max
+END validateStorageTemp
+
+SUBMODULE: toFreezerString
+    IMPORT: none
+    EXPORT: freezerString(String)
+    ALGORITHM:
+        freezerString:= "Freezer:"
+        IF (numFreezer = 0) THEN
+            freezerString:= freezerString + NEWLINE + "No food item in freezer"
+        ELSE
+            FOR column:= 0 TO numFreezer(exclusive) INC BY 1
+                food:= storageArray[0][column]
+                freezerString:= freezerString + NEWLINE 
+                                + (column + 1) + ". " 
+                                + food.toString <- none
+            ENDFOR
+        ENDIF
+END toFreezerString
+
+SUBMODULE: toFridgeString
+    IMPORT: none
+    EXPORT: fridgeString(String)
+    ALGORITHM:
+        fridgeString:= "Fridge:"
+        IF (numFridge = 0) THEN
+            fridgeString:= fridgeString + NEWLINE + "No food item in fridge"
+        ELSE
+            FOR column:= 0 TO numFridge(exclusive) INC BY 1
+                food:= storageArray[1][column]
+                fridgeString:= fridgeString + NEWLINE 
+                                + (column + 1) + ". " 
+                                + food.toString <- none
+            ENDFOR
+        ENDIF
+END toFridgeString
+
+SUBMODULE: toPantryString
+    IMPORT: none
+    EXPORT: pantryString(String)
+    ALGORITHM:
+        pantryString:= "Pantry:"
+        IF (numPantry = 0) THEN
+            pantryString:= pantryString + NEWLINE + "No food item in pantry"
+        ELSE
+            FOR column:= 0 TO numPantry(exclusive) INC BY 1
+                food:= storageArray[2][column]
+                pantryString:= pantryString + NEWLINE 
+                                + (column + 1) + ". " 
+                                + food.toString <- none
+            ENDFOR
+        ENDIF
+END toPantryString

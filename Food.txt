@@ -1,0 +1,248 @@
+/************************************************************
+ *Name: Kay Men Yap
+ *File name: Food.txt
+ *Purpose: Holds general information on food items
+ *Date last modified: 30/5/2018
+ ************************************************************/
+COMMENT: Parts of this file comprise externally-obtained code.
+ABSTRACT CLASS: Food implements IFood
+    COMMENT: dateMark is the date marked on the food item
+    CLASS FIELDS: name(String), storageTemp(Real), packaging(String), 
+                  dateMark(Calendar)
+
+CONSTRUCTORS:
+Default:
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: A food with the name "Chicken", having a storage temperature 
+               of 5.0 and packaged in a plastic bag
+    ALGORITHM:
+        name:= "Chicken"
+        storageTemp:= 5.0
+        packaging:= "Plastic bag"
+        dateMark:= Calendar <- none
+END Default
+        
+Alternate:
+    IMPORT: inName(String), inStorageTemp(Real), inPackaging(String), 
+            inDay(Integer), inMonth(Integer), inYear(Integer)
+    EXPORT: none
+    ASSERTION: Creates the object if the imports are valid and FAILS otherwise
+    ALGORITHM:
+        setName <- inName
+        setStorageTemp <- inStorageTemp
+        setPackaging <-inPackaging
+        setDateMark <- inDay, inMonth, inYear
+END Alternate
+
+Copy:
+    IMPORT: inFood (Food)
+    EXPORT: none
+    ASSERTION: Creates an object with an identical object state as the import
+    ALGORITHM:
+        name:= inFood.getName <- none
+        storageTemp:= inFood.getStorageTemp <- none
+        packaging:= inFood.getPackaging <- none
+        dateMark:= inFood.getDateMark <- none
+END Copy
+
+ABSTRACT SUBMODULE: clone
+    IMPORT: none
+    EXPORT: cloneFood(Food)
+    ALGORITHM:
+END clone
+
+ACCESSORS:
+SUBMODULE: getName
+    IMPORT: none
+    EXPORT: name(String)
+END getName
+
+SUBMODULE: getStorageTemp
+    IMPORT: none
+    EXPORT: storageTemp(Real)
+END getStorageTemp
+    
+SUBMODULE: getPackaging
+    IMPORT: none
+    EXPORT: packaging(String)
+END getPackaging
+
+SUBMODULE: getDateMark
+    IMPORT: none
+    EXPORT: outDateMark(Calendar)
+        outDateMark:= dateMark.clone <- none
+END getDateMark
+
+SUBMODULE: equals
+    IMPORT: inObject(Object)
+    EXPORT: isEqual(Boolean)
+    ASSERTION: Two Foods are interchangeable if they have the same name,
+               storageTemp, packaging and dateMark.
+    ALGORITHM:
+        isEqual:= FALSE
+        IF inObject ISA Food THEN
+            make inObject to a Food named inFood
+            IF (name EQUALS inFood.getName) THEN
+                IF (ABSOLUTE(storageTemp - inFood.getStorageTemp) < 0.01)
+                    IF (packaging EQUALS inFood.getPackaging)
+                        COMMENT: Equality check for dateMark is done using 
+                                 Calendar's equals method
+                        IF(dateMark.equals(inFood.getDateMark))
+                            isEqual:= TRUE
+                        ENDIF
+                    ENDIF
+                ENDIF
+            ENDIF
+        ENDIF
+END equals
+
+ABSTRACT SUBMODULE: toString
+    IMPORT: none
+    EXPORT: foodString(String)
+END toString
+
+MUTATORS:
+SUBMODULE: setName
+    IMPORT: inName(String)
+    EXPORT: none
+    ALGORITHM:
+        IF (validateString <- inName) THEN
+            name:= inName
+        ELSE
+            FAIL <- "Invalid name"
+        ENDIF
+END setName
+
+SUBMODULE: setStorageTemp
+    IMPORT: inStorageTemp(Real)
+    EXPORT: none
+    ALGORITHM:
+        IF (validateStorageTemp <- inStorageTemp) THEN
+            storageTemp:= inStorageTemp
+        ELSE
+            FAIL <- "Invalid storage temperature"
+        ENDIF
+END setStorageTemp
+
+SUBMODULE: setPackaging
+    IMPORT: inPackaging(String)
+    EXPORT: none
+    ALGORITHM:
+        IF (validateString <- inPackaging) THEN
+            FAIL <- "Invalid packaging"
+        ENDIF
+        packaging:= inPackaging
+END setPackaging
+
+
+SUBMODULE: setDateMark
+    IMPORT: inDay(Integer), inMonth(Integer), inYear(Integer)
+    EXPORT: none
+    ALGORITHM:
+        IF (isValidDate <- inDay, inMonth, inYear) THEN
+            IF (validateDateMark <- inDay, inMonth, inYear)
+                dateMark:= Calendar <- inYear, inMonth, inDay
+            ELSE
+                FAIL "Invalid date as in the past"
+        ELSE
+            FAIL "Invalid date imports"
+        ENDIF
+END setDateMark
+
+ABSTRACT SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: fileString(String)
+END toFileString
+
+ABSTRACT SUBMODULE: calcSpaceUsed
+    IMPORT: none
+    EXPORT: spaceUsed(Real)
+END calcSpaceUsed
+
+PRIVATE SUBMODULES:
+
+SUBMODULE: validateString
+    IMPORT: inString(String)
+    EXPORT: valid(Boolean)
+    ASSERTION: inString is not an empty string to be valid
+    ALGORITHM: 
+        valid:= NOT(inString EQUALS "" OR inString = NULL)
+END validateString
+
+SUBMODULE: validateStorageTemp
+    IMPORT: inStorageTemp(Real)
+    EXPORT: valid(Boolean)
+    ASSERTION: storageTemp is in the temperature range of freezer, 
+               fridge or pantry
+    ALGORITHM:
+        freezer:= (inStorageTemp >= FREEZERMINTEMP AND 
+                   inStorageTemp <= FREEZERMAXTEMP)
+        fridge:= (inStorageTemp >= FRIDGEMINTEMP AND 
+                  inStorageTemp <= FRIDGEMAXTEMP)
+        pantry:= (inStorageTemp >= PANTRYMINTEMP AND
+                  inStorageTemp <= PANTRYMAXTEMP)
+        valid:= freezer OR fridge OR pantry
+END validateStorageTemp
+
+COMMENT: Obtained from OLD Worked Examples in Object Orientation Example 
+         in Unit Materials of OOPD (Accessed on 28 May 2018)
+SUBMODULE: isValidDate
+    IMPORT: inDay(Integer), inMonth(Integer), inYear(Integer)
+    EXPORT: valid(Boolean)
+    ASSERTION: inDay, inMonth, inYear constitutes a valid date
+    ALGORITHM:
+        valid:= false
+        IF (inYear >= 2000 AND inYear <= 3000) THEN
+            IF(inMonth >= 1 AND inMonth <= 12)
+                IF(inDay >= 1 AND inDay <= daysInMonth <- inMonth, inYear)
+                    valid:= true
+                ENDIF
+            ENDIF
+        ENDIF
+END isValidDate
+
+
+
+
+
+SUBMODULE: daysInMonth
+    IMPORT: inMonth(Integer), inYear(Integer)
+    EXPORT: numDays(Integer)
+    ALGORITHM:
+        IF (( inMonth = 4 ) OR ( inMonth = 6 ) OR ( inMonth = 9 ) OR 
+            ( inMonth = 11 )) THEN
+            numDays:= 30
+        ELSE IF (( inMonth = 1 ) OR ( inMonth = 3 ) OR
+                ( inMonth = 5 ) OR ( inMonth = 7 ) OR
+                ( inMonth = 8 ) OR ( inMonth = 10 ) OR
+                ( inMonth = 12 ))
+            numDays:= 31
+        ELSE IF (isLeapYear(inYear))
+            numDays:= 29
+        ELSE
+            numDays:= 28
+END inDaysInMonth
+
+SUBMODULE: isLeapYear
+    IMPORT: inYear(Integer)
+    EXPORT: isLeap(Boolean)
+    ALGORITHM:
+        isLeap:=(( inYear MOD 4 = 0 ) AND (!(( inYear MOD 100 = 0 ) AND
+                 ( inYear MOD 400 != 0 ))))
+END isLeapYear
+
+COMMENT: End of code obtained from OLD Worked Examples in Object Orientation 
+         Example in Unit Materials of OOPD
+
+SUBMODULE: validateDateMark
+    IMPORT: inDay(Integer), inMonth(Integer), inYear(Integer)
+    EXPORT: valid(Boolean)
+    ASSERTION: dateMark is valid if dateMark is not in the past
+    ALGORITHM:
+        date:= CONSTRUCT Calendar USING inDay, inMonth, inYear
+        COMMENT: The default constructor of Calendar will construct
+                 a Calendar object with current date
+        today:= CONSTRUCT Calendar USING default
+        valid:= NOT (date.isBefore <- today)
+END validateDateMark

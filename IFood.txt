@@ -1,0 +1,18 @@
+/************************************************************
+ *Name: Kay Men Yap
+ *File name: IFood.txt
+ *Purpose: Forces classes that implement IFood to have
+           specified methods
+ *Date last modified: 30/5/2018
+ ************************************************************/
+INTERFACE IFOOD
+
+SUBMODULE: calcExpired
+    IMPORT: today(Calendar)
+    EXPORT: isExpired(Boolean)
+END calcExpired
+
+SUBMODULE: calcSpace
+    IMPORT: food(Food)
+    EXPORT: space(Integer)
+END calcSpace
